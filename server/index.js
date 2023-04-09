@@ -1,3 +1,4 @@
+
 import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
@@ -53,7 +54,7 @@ app.use("/users", userRoutes);
 app.use("/posts", postRoutes);
 
 /* MONGOOSE SETUP */
-const PORT = process.env.PORT || 6001;
+const PORT = process.env.PORT || 8080;
 mongoose
   .connect(process.env.MONGO_URL, {
     useNewUrlParser: true,

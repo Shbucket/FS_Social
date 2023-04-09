@@ -19,7 +19,7 @@ export const createPost = async (req, res) => {
     });
     await newPost.save();
 
-    const post = await Post.find();
+    const post = await Post.find().sort({createdAt: -1});
     res.status(201).json(post);
   } catch (err) {
     res.status(409).json({ message: err.message });
@@ -29,7 +29,7 @@ export const createPost = async (req, res) => {
 /* READ */
 export const getFeedPosts = async (req, res) => {
   try {
-    const post = await Post.find();
+    const post = await Post.find().sort({ createdAt: -1 });
     res.status(200).json(post);
   } catch (err) {
     res.status(404).json({ message: err.message });
@@ -39,7 +39,7 @@ export const getFeedPosts = async (req, res) => {
 export const getUserPosts = async (req, res) => {
   try {
     const { userId } = req.params;
-    const post = await Post.find({ userId });
+    const post = await Post.find({ userId }).sort({ createdAt: -1 });
     res.status(200).json(post);
   } catch (err) {
     res.status(404).json({ message: err.message });
@@ -71,3 +71,36 @@ export const likePost = async (req, res) => {
     res.status(404).json({ message: err.message });
   }
 };
+
+export const postComment = async(req,res) => {
+    try {
+        const {postId, userId} = req.params;
+        const {comment} = req.body;
+        const newComment = {
+            userId,
+            comment
+        };
+        const post = await Post.findById(postId);
+        post.comments.push(newComment);
+        const updatedPost = await Post.findByIdAndUpdate(postId , {comments:post.comments},{new:true});
+        res.status(200).json(updatedPost);
+    } catch (err) {
+        res.status(404).json({error:err.message});
+    }
+}
+
+export const deleteComment = async(req,res) => {
+    try {
+        const {postId} = req.params;
+        const {comment} = req.body;
+        const post = await Post.findById(postId);
+        // console.log(post);
+        const updatedPost = post.comments.filter((item,i)=>{
+            return item.comment !== comment;
+        });    
+        const updatedNewPost = await Post.findByIdAndUpdate(postId , {comments:updatedPost},{new:true});
+        res.status(200).json(updatedNewPost);
+    } catch (err) {
+        res.status(404).json({error:err.message});
+    }
+}
